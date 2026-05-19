@@ -1,6 +1,7 @@
 # Maven
 backend/target/
 backend/uploads/
+uploads/
 
 # Node
 frontend/node_modules/
