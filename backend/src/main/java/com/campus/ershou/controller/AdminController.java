@@ -88,6 +88,28 @@ public class AdminController {
         return Result.ok();
     }
 
+    @GetMapping("/merchant-bans")
+    public Result<List<MerchantBan>> listMerchantBans() {
+        return Result.ok(adminService.listActiveMerchantBans());
+    }
+
+    @DeleteMapping("/merchant-bans/{id}")
+    public Result<?> liftMerchantBan(@PathVariable Long id) {
+        adminService.liftMerchantBan(id);
+        return Result.ok();
+    }
+
+    @GetMapping("/blacklist")
+    public Result<List<BuyerBlacklist>> listBuyerBlacklist() {
+        return Result.ok(adminService.listBuyerBlacklist());
+    }
+
+    @DeleteMapping("/blacklist/{id}")
+    public Result<?> removeBuyerBlacklist(@PathVariable Long id) {
+        adminService.removeBuyerBlacklist(id);
+        return Result.ok();
+    }
+
     @GetMapping("/banners")
     public Result<List<Banner>> banners() {
         return Result.ok(adminService.banners());

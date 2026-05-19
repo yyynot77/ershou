@@ -80,6 +80,7 @@ public class AdminService {
 
     public void banMerchant(Long merchantId, String banType, String reason, LocalDateTime endTime) {
         checkAdmin();
+        if (merchantId == null) throw new BusinessException("商家ID不能为空");
         MerchantBan ban = new MerchantBan();
         ban.setMerchantId(merchantId);
         ban.setBanType(banType);
@@ -98,11 +99,42 @@ public class AdminService {
     }
 
     public void blacklistBuyer(Long buyerId, Long merchantId, String reason) {
+        checkAdmin();
         BuyerBlacklist bl = new BuyerBlacklist();
         bl.setBuyerId(buyerId);
         bl.setMerchantId(merchantId);
         bl.setReason(reason);
         blacklistMapper.insert(bl);
+    }
+
+    /** 生效中的封禁（未过期） */
+    public List<MerchantBan> listActiveMerchantBans() {
+        checkAdmin();
+        LocalDateTime now = LocalDateTime.now();
+        return banMapper.selectList(new LambdaQueryWrapper<MerchantBan>()
+                .and(w -> w.isNull(MerchantBan::getEndTime).or().gt(MerchantBan::getEndTime, now))
+                .orderByDesc(MerchantBan::getCreateTime));
+    }
+
+    public void liftMerchantBan(Long banId) {
+        checkAdmin();
+        MerchantBan ban = banMapper.selectById(banId);
+        if (ban == null) throw new BusinessException("封禁记录不存在");
+        banMapper.deleteById(banId);
+    }
+
+    public List<BuyerBlacklist> listBuyerBlacklist() {
+        checkAdmin();
+        return blacklistMapper.selectList(new LambdaQueryWrapper<BuyerBlacklist>()
+                .orderByDesc(BuyerBlacklist::getCreateTime));
+    }
+
+    public void removeBuyerBlacklist(Long id) {
+        checkAdmin();
+        if (blacklistMapper.selectById(id) == null) {
+            throw new BusinessException("拉黑记录不存在");
+        }
+        blacklistMapper.deleteById(id);
     }
 
     public List<Banner> banners() {
