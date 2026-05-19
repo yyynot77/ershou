@@ -2,8 +2,10 @@ package com.campus.ershou.config;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.ershou.common.Constants;
+import com.campus.ershou.entity.Banner;
 import com.campus.ershou.entity.SysUser;
 import com.campus.ershou.entity.Wallet;
+import com.campus.ershou.mapper.BannerMapper;
 import com.campus.ershou.mapper.SysUserMapper;
 import com.campus.ershou.mapper.WalletMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class DataInitializer implements CommandLineRunner {
     private SysUserMapper userMapper;
     @Autowired
     private WalletMapper walletMapper;
+    @Autowired
+    private BannerMapper bannerMapper;
     @org.springframework.beans.factory.annotation.Value("${app.upload.path}")
     private String uploadPath;
 
@@ -31,6 +35,7 @@ public class DataInitializer implements CommandLineRunner {
         try {
             Files.createDirectories(Path.of(uploadPath));
             initAdmin();
+            initBanners();
         } catch (Exception e) {
             System.err.println("[DataInitializer] 初始化失败，请确认 MySQL 已启动且已执行 sql/init.sql: " + e.getMessage());
         }
@@ -58,6 +63,24 @@ public class DataInitializer implements CommandLineRunner {
         } else if (!encoder.matches("admin123", admin.getPassword())) {
             admin.setPassword(encoder.encode("admin123"));
             userMapper.updateById(admin);
+        }
+    }
+
+    private void initBanners() {
+        if (bannerMapper.selectCount(null) > 0) return;
+        String[][] items = {
+                {"开学季 · 教材转让", "https://picsum.photos/1200/400?random=11"},
+                {"数码好物 · 低价淘", "https://picsum.photos/1200/400?random=12"},
+                {"绿色校园 · 闲置循环", "https://picsum.photos/1200/400?random=13"}
+        };
+        int order = 1;
+        for (String[] it : items) {
+            Banner b = new Banner();
+            b.setTitle(it[0]);
+            b.setImageUrl(it[1]);
+            b.setSortOrder(order++);
+            b.setEnabled(1);
+            bannerMapper.insert(b);
         }
     }
 }

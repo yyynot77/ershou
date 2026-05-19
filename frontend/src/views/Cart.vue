@@ -7,7 +7,7 @@
         <div class="page-card cart-list" v-if="items.length">
           <div v-for="row in items" :key="row.cartItem.id" class="cart-item">
             <el-checkbox v-model="row.checked" @change="updateSelected" />
-            <img :src="row.image || placeholder" class="thumb" @click="goProduct(row)" />
+            <img :src="rowImage(row)" class="thumb" @click="goProduct(row)" />
             <div class="item-info" @click="goProduct(row)">
               <h4>{{ row.product?.name }}</h4>
               <p class="shop"><el-icon><Shop /></el-icon> {{ row.shopName }}</p>
@@ -16,7 +16,7 @@
             <el-input-number
               v-model="row.cartItem.quantity"
               :min="1"
-              :max="row.product?.stock"
+              :max="maxQty(row)"
               @change="v => updateQty(row.cartItem.id, v)"
             />
             <div class="subtotal">¥{{ lineTotal(row).toFixed(2) }}</div>
@@ -70,6 +70,7 @@ import { ElMessage } from 'element-plus'
 import { Shop, Delete } from '@element-plus/icons-vue'
 import { getCart, updateCart, removeCart, checkout as checkoutApi } from '../api'
 import { useCartStore } from '../stores/cart'
+import { resolveImageUrl } from '../utils/image'
 import PageHeader from '../components/PageHeader.vue'
 
 const router = useRouter()
@@ -79,7 +80,10 @@ const loading = ref(false)
 const checkingOut = ref(false)
 const checkoutForm = ref({ meetTime: '', meetPlace: '', usePoints: 0 })
 
-const placeholder = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect fill="#e2e8f0" width="80" height="80"/></svg>')
+/** 保证 min(1) <= max，避免 Element Plus InputNumber 抛错卡死 */
+const maxQty = row => Math.max(1, Number(row.product?.stock) || 1)
+
+const rowImage = row => resolveImageUrl(row.image)
 
 const lineTotal = row => (row.product?.price || 0) * (row.cartItem?.quantity || 0)
 
@@ -93,18 +97,36 @@ const load = async () => {
   loading.value = true
   try {
     const data = (await getCart()).data || []
-    items.value = data.map(i => ({ ...i, checked: true }))
+    items.value = data.map(i => {
+      const stock = Math.max(1, Number(i.product?.stock) || 1)
+      const qty = Math.min(Math.max(1, i.cartItem?.quantity || 1), stock)
+      return {
+        ...i,
+        checked: true,
+        cartItem: { ...i.cartItem, quantity: qty }
+      }
+    })
+    await cartStore.refresh()
   } finally { loading.value = false }
 }
 
-const updateQty = async (id, q) => { await updateCart(id, q); await cartStore.refresh() }
+const updateQty = async (id, q) => {
+  try {
+    await updateCart(id, q)
+    await load()
+  } catch {
+    await load()
+  }
+}
+
 const remove = async id => {
   await removeCart(id)
   await load()
-  await cartStore.refresh()
 }
 
-const goProduct = row => router.push(`/product/${row.product?.id}`)
+const goProduct = row => {
+  if (row.product?.id) router.push(`/product/${row.product.id}`)
+}
 
 const doCheckout = async () => {
   const ids = selectedItems.value.map(s => s.cartItem.id)

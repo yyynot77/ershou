@@ -54,10 +54,19 @@ public class UserController {
             return Result.fail("充值金额须大于0");
         }
         Long uid = UserContext.getUserId();
-        walletService.recharge(uid, amount, "银行卡充值（模拟）");
+        SysUser u = userMapper.selectById(uid);
+        if (u.getBankAccount() == null || u.getBankAccount().isBlank()) {
+            return Result.fail("请先在个人中心填写并保存银行卡号");
+        }
+        walletService.recharge(uid, amount, "银行卡充值（模拟）→ " + maskBank(u.getBankAccount()));
         Map<String, Object> map = new HashMap<>();
         map.put("wallet", walletService.getOrCreate(uid));
         return Result.ok(map);
+    }
+
+    private static String maskBank(String account) {
+        if (account == null || account.length() < 8) return "****";
+        return account.substring(0, 4) + " **** **** " + account.substring(account.length() - 4);
     }
 
     @GetMapping("/wallet/transactions")

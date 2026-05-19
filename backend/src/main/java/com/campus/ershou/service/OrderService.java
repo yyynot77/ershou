@@ -103,8 +103,14 @@ public class OrderService {
         ordersMapper.updateById(order);
         walletService.pay(buyerId, pay, order.getId());
         addEscrow(pay);
-        if (dto.getCartItemIds() != null) {
-            cartMapper.deleteBatchIds(dto.getCartItemIds());
+        Set<Long> boughtProductIds = new HashSet<>();
+        for (CartItem ci : cartItems) {
+            boughtProductIds.add(ci.getProductId());
+        }
+        if (!boughtProductIds.isEmpty()) {
+            cartMapper.delete(new LambdaQueryWrapper<CartItem>()
+                    .eq(CartItem::getUserId, buyerId)
+                    .in(CartItem::getProductId, boughtProductIds));
         }
         return order;
     }

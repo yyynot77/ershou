@@ -1,5 +1,5 @@
 <template>
-  <div v-if="detail" class="detail fade-in" v-loading="!detail">
+  <div v-if="detail" class="detail fade-in" v-loading="loading">
     <el-breadcrumb separator="/" class="breadcrumb">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>{{ p.name }}</el-breadcrumb-item>
@@ -9,12 +9,12 @@
       <el-row :gutter="32">
         <el-col :xs="24" :md="11">
           <div class="gallery">
-            <img :src="currentImage" class="main-img" @error="imgErr = true" />
-            <div class="thumbs" v-if="detail.images?.length > 1">
+            <img :src="currentImage" class="main-img" @error="onMainImgError" />
+            <div class="thumbs" v-if="images.length > 1">
               <img
-                v-for="(img, i) in detail.images"
-                :key="img.id"
-                :src="img.imageUrl"
+                v-for="(img, i) in images"
+                :key="img.id || i"
+                :src="resolveImageUrl(img.imageUrl)"
                 :class="{ active: currentIndex === i }"
                 @click="currentIndex = i"
               />
@@ -42,19 +42,19 @@
             <el-divider />
             <p class="desc-title">商品描述</p>
             <p class="desc">{{ p.description || '卖家很懒，暂无描述' }}</p>
-            <div class="qty-row" v-if="p.status==='PUBLISHED'">
+            <div class="qty-row" v-if="canBuy">
               <span>数量</span>
               <el-input-number v-model="qty" :min="1" :max="p.stock" size="large" />
             </div>
+            <el-alert v-else type="warning" :closable="false" show-icon title="该商品暂不可购买" />
           </div>
         </el-col>
       </el-row>
     </div>
 
-    <!-- 底部固定操作栏 -->
-    <div class="action-bar" v-if="p.status==='PUBLISHED'">
+    <div class="action-bar" v-if="canBuy">
       <div class="action-inner">
-        <div class="action-price">¥{{ (p.price * qty).toFixed(2) }}</div>
+        <div class="action-price">¥{{ (Number(p.price) * qty).toFixed(2) }}</div>
         <div class="action-btns">
           <el-button size="large" round :icon="ShoppingCart" @click="addToCart">加入购物车</el-button>
           <el-button size="large" round type="primary" @click="buyNow">立即购买</el-button>
@@ -65,14 +65,14 @@
 
     <el-card class="reviews-card page-card" shadow="never">
       <template #header>
-        <span>商品评价 ({{ detail.reviews?.length || 0 }})</span>
+        <span>商品评价 ({{ reviews.length }})</span>
       </template>
-      <div v-for="r in detail.reviews" :key="r.id" class="review-item">
+      <div v-for="r in reviews" :key="r.id" class="review-item">
         <el-rate :model-value="r.rating" disabled size="small" />
         <p>{{ r.content || '用户未填写评价' }}</p>
         <span class="review-time">{{ r.createTime }}</span>
       </div>
-      <el-empty v-if="!detail.reviews?.length" description="暂无评价，购买后来抢沙发吧" />
+      <el-empty v-if="!reviews.length" description="暂无评价，购买后来抢沙发吧" />
     </el-card>
 
     <el-dialog v-model="buyVisible" title="确认订单" width="500px" class="buy-dialog">
@@ -81,7 +81,7 @@
       </el-alert>
       <el-form label-width="100px" size="large">
         <el-form-item label="商品合计">
-          <span class="dialog-price">¥{{ (p.price * qty).toFixed(2) }}</span>
+          <span class="dialog-price">¥{{ (Number(p.price) * qty).toFixed(2) }}</span>
         </el-form-item>
         <el-form-item label="线下时间">
           <el-input v-model="checkout.meetTime" placeholder="如：周六下午3点" />
@@ -100,46 +100,100 @@
       </template>
     </el-dialog>
   </div>
+  <el-empty v-else-if="!loading" description="商品不存在或已下架" />
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Shop, ArrowRight, ShoppingCart, Share } from '@element-plus/icons-vue'
 import { getProduct, addCart, checkout as checkoutApi } from '../api'
 import { useUserStore } from '../stores/user'
 import { useCartStore } from '../stores/cart'
+import { resolveImageUrl, PLACEHOLDER } from '../utils/image'
 
 const route = useRoute()
 const router = useRouter()
 const store = useUserStore()
 const cartStore = useCartStore()
 const detail = ref(null)
+const loading = ref(true)
 const qty = ref(1)
 const currentIndex = ref(0)
-const imgErr = ref(false)
+const mainImgFailed = ref(false)
 const buyVisible = ref(false)
 const checkingOut = ref(false)
 const checkout = ref({ meetTime: '', meetPlace: '', usePoints: 0 })
 
+/** 兼容旧版接口：product 字段里又套了一层 enrich */
+function normalizeDetail(data) {
+  if (!data) return null
+  if (data.product?.product) {
+    return {
+      product: data.product.product,
+      images: data.product.images || [],
+      shopName: data.product.shopName || '',
+      reviews: data.reviews || []
+    }
+  }
+  return {
+    product: data.product,
+    images: data.images || [],
+    shopName: data.shopName || '',
+    reviews: data.reviews || []
+  }
+}
+
 const p = computed(() => detail.value?.product || {})
+const images = computed(() => detail.value?.images || [])
 const shopName = computed(() => detail.value?.shopName || '')
-const currentImage = computed(() => detail.value?.images?.[currentIndex.value]?.imageUrl || '')
+const reviews = computed(() => detail.value?.reviews || [])
+const productId = computed(() => p.value?.id)
+const canBuy = computed(() => p.value?.status === 'PUBLISHED' && (p.value?.stock || 0) > 0)
+
+const currentImage = computed(() => {
+  if (mainImgFailed.value) return PLACEHOLDER
+  const img = images.value[currentIndex.value]
+  return resolveImageUrl(img?.imageUrl)
+})
+
+const onMainImgError = () => { mainImgFailed.value = true }
 
 const load = async () => {
-  detail.value = (await getProduct(route.params.id)).data
-  currentIndex.value = 0
+  const id = route.params.id
+  if (!id || id === 'undefined') {
+    detail.value = null
+    loading.value = false
+    return
+  }
+  loading.value = true
+  mainImgFailed.value = false
+  try {
+    const res = await getProduct(id)
+    detail.value = normalizeDetail(res.data)
+    currentIndex.value = 0
+    qty.value = 1
+  } catch {
+    detail.value = null
+  } finally {
+    loading.value = false
+  }
 }
 
 const addToCart = async () => {
+  if (!productId.value) {
+    ElMessage.error('商品信息异常，请刷新页面')
+    return
+  }
   if (!store.isLogin()) return router.push('/login')
-  await addCart(p.value.id, qty.value)
+  await addCart(productId.value, qty.value)
   await cartStore.refresh()
   ElMessage.success('已加入购物车')
 }
 
 const buyNow = () => {
+  if (!productId.value) return ElMessage.error('商品信息异常')
   if (!store.isLogin()) return router.push('/login')
   buyVisible.value = true
 }
@@ -147,7 +201,8 @@ const buyNow = () => {
 const doCheckout = async () => {
   checkingOut.value = true
   try {
-    await checkoutApi({ productId: p.value.id, quantity: qty.value, ...checkout.value })
+    await checkoutApi({ productId: productId.value, quantity: qty.value, ...checkout.value })
+    await cartStore.refresh()
     ElMessage.success('下单成功！')
     buyVisible.value = false
     router.push('/orders')
@@ -159,6 +214,7 @@ const copyLink = () => {
   ElMessage.success('链接已复制')
 }
 
+watch(() => route.params.id, load)
 onMounted(load)
 </script>
 

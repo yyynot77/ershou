@@ -28,6 +28,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { resolveImageUrl, PLACEHOLDER } from '../utils/image'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ShoppingCart, View, Shop } from '@element-plus/icons-vue'
@@ -41,13 +42,9 @@ const userStore = useUserStore()
 const cartStore = useCartStore()
 const imgFailed = ref(false)
 
-const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect fill="#e2e8f0" width="400" height="300"/><text x="50%" y="50%" fill="#94a3b8" font-size="18" text-anchor="middle" dy=".3em">暂无图片</text></svg>'
-)
-
 const imageUrl = computed(() => {
   if (imgFailed.value) return PLACEHOLDER
-  return props.item.images?.[0]?.imageUrl || PLACEHOLDER
+  return resolveImageUrl(props.item.images?.[0]?.imageUrl)
 })
 
 const onImgError = () => { imgFailed.value = true }

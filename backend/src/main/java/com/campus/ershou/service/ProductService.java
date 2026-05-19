@@ -86,8 +86,7 @@ public class ProductService {
     public Map<String, Object> detail(Long id) {
         Product p = productMapper.selectById(id);
         if (p == null) throw new BusinessException("商品不存在");
-        Map<String, Object> map = new HashMap<>();
-        map.put("product", enrich(p));
+        Map<String, Object> map = enrich(p);
         map.put("reviews", reviewMapper.selectList(
                 new LambdaQueryWrapper<ProductReview>().eq(ProductReview::getProductId, id)
                         .orderByDesc(ProductReview::getCreateTime)));

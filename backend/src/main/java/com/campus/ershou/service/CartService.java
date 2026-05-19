@@ -44,6 +44,13 @@ public class CartService {
         if (c == null || !c.getUserId().equals(UserContext.getUserId())) {
             throw new BusinessException("购物车项不存在");
         }
+        Product p = productMapper.selectById(c.getProductId());
+        if (p == null || !Constants.PRODUCT_PUBLISHED.equals(p.getStatus()) || p.getStock() <= 0) {
+            cartMapper.deleteById(id);
+            throw new BusinessException("商品已下架或售罄，已从购物车移除");
+        }
+        if (quantity == null || quantity < 1) quantity = 1;
+        if (quantity > p.getStock()) quantity = p.getStock();
         c.setQuantity(quantity);
         cartMapper.updateById(c);
     }
@@ -57,20 +64,28 @@ public class CartService {
         Long userId = UserContext.getUserId();
         List<CartItem> items = cartMapper.selectList(
                 new LambdaQueryWrapper<CartItem>().eq(CartItem::getUserId, userId));
-        return items.stream().map(ci -> {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (CartItem ci : items) {
+            Product p = productMapper.selectById(ci.getProductId());
+            if (p == null || !Constants.PRODUCT_PUBLISHED.equals(p.getStatus()) || p.getStock() <= 0) {
+                cartMapper.deleteById(ci.getId());
+                continue;
+            }
+            if (ci.getQuantity() > p.getStock()) {
+                ci.setQuantity(p.getStock());
+                cartMapper.updateById(ci);
+            }
             Map<String, Object> m = new HashMap<>();
             m.put("cartItem", ci);
-            Product p = productMapper.selectById(ci.getProductId());
             m.put("product", p);
             ProductImage img = imageMapper.selectOne(new LambdaQueryWrapper<ProductImage>()
                     .eq(ProductImage::getProductId, ci.getProductId()).last("LIMIT 1"));
             m.put("image", img != null ? img.getImageUrl() : null);
-            if (p != null) {
-                MerchantInfo mi = merchantInfoMapper.selectOne(
-                        new LambdaQueryWrapper<MerchantInfo>().eq(MerchantInfo::getUserId, p.getMerchantId()));
-                m.put("shopName", mi != null ? mi.getShopName() : "");
-            }
-            return m;
-        }).collect(Collectors.toList());
+            MerchantInfo mi = merchantInfoMapper.selectOne(
+                    new LambdaQueryWrapper<MerchantInfo>().eq(MerchantInfo::getUserId, p.getMerchantId()));
+            m.put("shopName", mi != null ? mi.getShopName() : "");
+            result.add(m);
+        }
+        return result;
     }
 }
