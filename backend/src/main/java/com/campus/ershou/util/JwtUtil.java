@@ -12,6 +12,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JWT 工具：登录签发、拦截器解析
+ * <p>
+ * 载荷：userId、role；配置 app.jwt.secret / expire-hours
+ * <p>
+ * 调用方：AuthService.generateToken、AuthInterceptor.preHandle
+ */
 @Component
 public class JwtUtil {
     @Value("${app.jwt.secret}")

@@ -45,6 +45,7 @@
 </template>
 
 <script setup>
+/** 页面：用户注册 → registerUser → 待管理员审核 */
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

@@ -29,6 +29,10 @@
 </template>
 
 <script setup>
+/**
+ * 页面：商家商品管理（merchant/ProductManage.vue）
+ * myProducts(status) 按状态筛选；下架 offShelfProduct
+ */
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { myProducts, offShelfProduct } from '../../api'

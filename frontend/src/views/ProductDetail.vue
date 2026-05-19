@@ -104,6 +104,23 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 页面：商品详情（views/ProductDetail.vue）
+ * ============================================================================
+ *
+ * 路由：/product/:id
+ *
+ * load()：getProduct(id) → 归一化 detail（product/images/shopName/reviews）
+ *
+ * addToCart()：addCart(productId, qty) → cartStore.refresh()
+ * doCheckout()：checkoutApi({ productId, quantity, ... }) → 钱包扣款下单 → /orders
+ *
+ * 底部 action-bar 仅 status===PUBLISHED 且 stock>0 时显示
+ *
+ * FIXME：曾出现后端 detail 多包一层 product 导致 id 为 undefined，已用 normalizeDetail 兼容
+ * ============================================================================
+ */
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

@@ -1,3 +1,22 @@
+/**
+ * ============================================================================
+ * 模块：Vue Router 路由与权限守卫
+ * ============================================================================
+ *
+ * 布局结构：
+ * - /login、/register* 独立页
+ * - 其余业务页嵌套在 MainLayout 下（顶栏+底栏）
+ *
+ * meta 约定：
+ * - auth: true → 必须登录，否则 next('/login')
+ * - role: 'USER'|'MERCHANT'|'ADMIN' → 角色不符则 next('/')
+ *
+ * 守卫触发：每次路由跳转前 beforeEach
+ * 数据来源：Pinia useUserStore（启动时从 sessionStorage 恢复）
+ *
+ * FIXME：角色校验仅前端，真正权限以后端 UserContext.role 为准
+ * ============================================================================
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
@@ -22,6 +41,10 @@ const routes = [
 
 const router = createRouter({ history: createWebHistory(), routes })
 
+/**
+ * 全局前置守卫：登录态 + 角色路由控制
+ * 入口：任意 router.push / <router-link> / 地址栏变更
+ */
 router.beforeEach((to, from, next) => {
   const store = useUserStore()
   if (to.meta.auth && !store.isLogin()) return next('/login')

@@ -12,6 +12,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 管理后台业务：用户/商品审核、充值、商家等级、封禁、拉黑、轮播
+ * <p>
+ * 所有方法开头 checkAdmin()，依赖 UserContext.role === ADMIN
+ * <p>
+ * 前端入口：views/admin/Dashboard.vue 各 Tab
+ */
 @Service
 public class AdminService {
     @Autowired private SysUserMapper userMapper;

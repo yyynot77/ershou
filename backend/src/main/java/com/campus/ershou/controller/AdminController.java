@@ -11,6 +11,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 管理后台 API（仅 ADMIN 角色应在前端路由限制，后端靠各 Service.checkAdmin）
+ * <p>
+ * 前端：views/admin/Dashboard.vue
+ */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {

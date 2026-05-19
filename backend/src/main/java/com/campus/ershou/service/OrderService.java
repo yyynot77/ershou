@@ -15,6 +15,17 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * 订单核心业务：下单、发货、收货结算、退货、平台托管与商家分账
+ * <p>
+ * 下单 checkout：扣买家钱包 → 商品减库存/改状态 → 写 orders/order_item → 删购物车同商品行
+ * <p>
+ * 结算 settleOrder：商家钱包入账（扣平台费率）、商品标 SOLD、累计销量
+ * <p>
+ * 黑名单：checkout 前 checkBlacklist 查 buyer_blacklist 表
+ * <p>
+ * 历史遗留：checkout 同时支持 cartItemIds 与 productId 直购，职责略耦合
+ */
 @Service
 public class OrderService {
     @Autowired private OrdersMapper ordersMapper;

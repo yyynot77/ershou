@@ -64,6 +64,29 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 页面：购物车（views/Cart.vue）
+ * ============================================================================
+ *
+ * 路由：/cart（meta.auth，需登录）
+ *
+ * 核心功能与函数：
+ * | 用户操作           | 前端函数      | API                    | 后端              |
+ * |--------------------|---------------|------------------------|-------------------|
+ * | 进入页面           | load()        | GET /api/cart          | CartService.list  |
+ * | 改数量 +/-         | updateQty()   | PUT /api/cart/{id}     | CartService.updateQty |
+ * | 删除商品           | remove()      | DELETE /api/cart/{id}  | CartService.remove |
+ * | 一键下单           | doCheckout()  | POST /api/orders/checkout | OrderService.checkout |
+ *
+ * 状态：
+ * - items：购物车行（含 checked 用于结算勾选）
+ * - selectedItems/selectedTotal：computed 派生已选
+ * - checkoutForm：线下时间/地点/积分
+ *
+ * 下单后：cartStore.refresh() + router.push('/orders')
+ * ============================================================================
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -93,6 +116,7 @@ const selectedTotal = computed(() => selectedItems.value.reduce((s, i) => s + li
 
 const updateSelected = () => {}
 
+/** 拉取购物车列表并同步角标；售罄项由后端 list() 自动剔除 */
 const load = async () => {
   loading.value = true
   try {
@@ -128,6 +152,10 @@ const goProduct = row => {
   if (row.product?.id) router.push(`/product/${row.product.id}`)
 }
 
+/**
+ * 一键下单：仅提交 checked 的 cartItemIds
+ * 钱包不足时后端 BusinessException，由 request 拦截器 ElMessage 提示
+ */
 const doCheckout = async () => {
   const ids = selectedItems.value.map(s => s.cartItem.id)
   if (!ids.length) return

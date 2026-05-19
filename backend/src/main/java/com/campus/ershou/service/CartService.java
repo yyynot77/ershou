@@ -12,6 +12,16 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 购物车业务 Service
+ * <p>
+ * 数据表：cart_item（用户-商品-数量）
+ * <p>
+ * Mapper：CartItemMapper（MyBatis-Plus BaseMapper，无 XML）
+ * <p>
+ * 列表拉取时会自动删除「已下架/售罄」的脏数据，避免前端 InputNumber min&gt;max 卡死。
+ * TODO：加购与改数量可考虑合并校验逻辑，减少重复查询 product。
+ */
 @Service
 public class CartService {
     @Autowired private CartItemMapper cartMapper;
@@ -19,6 +29,10 @@ public class CartService {
     @Autowired private ProductImageMapper imageMapper;
     @Autowired private MerchantInfoMapper merchantInfoMapper;
 
+    /**
+     * 加入购物车（存在则累加数量）
+     * 入口：CartController.add ← ProductCard/ProductDetail
+     */
     public void add(Long productId, Integer quantity) {
         Long userId = UserContext.getUserId();
         Product p = productMapper.selectById(productId);

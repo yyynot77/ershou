@@ -27,6 +27,18 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 组件：首页/店铺商品卡片（components/ProductCard.vue）
+ * ============================================================================
+ *
+ * 点击卡片 → goDetail() → router.push(`/product/${id}`)
+ * 点击店铺名 → goShop() → /shop/:merchantId
+ * 悬浮加购 → quickAdd() → addCart → cartStore.refresh()
+ *
+ * props.item 结构来自 ProductService.enrich：{ product, images, shopName }
+ * ============================================================================
+ */
 import { computed, ref } from 'vue'
 import { resolveImageUrl, PLACEHOLDER } from '../utils/image'
 import { useRouter } from 'vue-router'

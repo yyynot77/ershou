@@ -39,6 +39,23 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 页面：登录（views/Login.vue）
+ * ============================================================================
+ *
+ * 调用链：
+ * 用户点击「登录」@submit.prevent="submit"
+ *   → submit() → api.login(form)
+ *   → POST /api/auth/login → AuthService.login
+ *   → 返回 { token, user, merchant? }
+ *   → userStore.setLogin(res.data) 写 Pinia + sessionStorage
+ *   → cartStore.refresh() 拉购物车角标
+ *   → router.push 管理员去 /admin，其余去 /
+ *
+ * loadCaptcha：mounted 与点击换图 → GET /api/auth/captcha
+ * ============================================================================
+ */
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

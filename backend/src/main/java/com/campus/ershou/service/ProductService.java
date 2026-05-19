@@ -15,6 +15,15 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 商品业务：发布/审核/搜索/详情/店铺列表
+ * <p>
+ * 状态机：PENDING →（管理员审核）→ PUBLISHED → 下单 LOCKED/SOLD → 下架 OFF_SHELF
+ * <p>
+ * enrich()：为列表/详情附加 images、shopName，供前端 ProductCard 展示
+ * <p>
+ * 首页仅 search 返回 PUBLISHED 且 stock&gt;0，避免已售商品再次出现
+ */
 @Service
 public class ProductService {
     @Autowired private ProductMapper productMapper;

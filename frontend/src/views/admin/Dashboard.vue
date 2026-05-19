@@ -107,6 +107,11 @@
 </template>
 
 <script setup>
+/**
+ * 页面：管理后台（views/admin/Dashboard.vue）路由 /admin
+ * Tab：待审用户/用户管理/待审商品/商家惩罚/买家拉黑/轮播
+ * 解除封禁 doLiftBan → liftMerchantBan；解除拉黑 doUnblacklist → removeBuyerBlacklist
+ */
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {

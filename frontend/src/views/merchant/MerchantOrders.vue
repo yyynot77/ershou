@@ -24,6 +24,10 @@
 </template>
 
 <script setup>
+/**
+ * 页面：商家订单（merchant/MerchantOrders.vue）
+ * merchantOrders() 列表；shipOrder 发货；approveReturn 审核退货
+ */
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { merchantOrders, shipOrder, approveReturn, reviewBuyer as reviewBuyerApi } from '../../api'

@@ -13,6 +13,13 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 用户中心 Controller（需登录）
+ * <p>
+ * 前端：Profile.vue（资料/流水）、Recharge.vue（自助充值）
+ * <p>
+ * 充值链：Recharge submit → selfRecharge → WalletService.recharge → wallet 表余额增加
+ */
 @RestController
 @RequestMapping("/api/user")
 public class UserController {

@@ -15,6 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 认证业务：登录、注册、JWT 签发
+ * <p>
+ * 密码：BCrypt 存储；验证码：CaptchaStore 内存 Map（单机演示，集群需 Redis）
+ * <p>
+ * 新用户默认 status=PENDING，AdminService.auditUser 通过后方能登录。
+ */
 @Service
 public class AuthService {
     @Autowired private SysUserMapper userMapper;

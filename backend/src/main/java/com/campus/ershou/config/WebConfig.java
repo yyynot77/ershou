@@ -6,6 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 
+/**
+ * Web 全局配置：CORS、静态资源、JWT 拦截白名单
+ * <p>
+ * 上传文件通过 /uploads/** 映射到 app.upload.path 本地目录（FileController 写入）
+ * <p>
+ * FIXME：/api/files/upload 在白名单，未登录也可上传，生产环境应加鉴权或限流
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Autowired

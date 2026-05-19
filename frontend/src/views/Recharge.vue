@@ -42,6 +42,11 @@
 </template>
 
 <script setup>
+/**
+ * 页面：钱包充值（views/Recharge.vue）路由 /recharge，仅 USER
+ * submit() → selfRecharge(amount) → UserController → WalletService.recharge
+ * 须先在 Profile 保存银行卡号
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

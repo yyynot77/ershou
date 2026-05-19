@@ -1,3 +1,7 @@
+/**
+ * 应用入口：挂载 Vue + Pinia + Router + Element Plus
+ * 全局样式：assets/styles/global.css
+ */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'

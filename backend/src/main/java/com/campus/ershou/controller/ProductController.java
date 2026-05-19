@@ -11,6 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 商品模块 Controller
+ * <p>
+ * 公开接口（白名单）：search、detail — 未登录可浏览首页/详情
+ * <p>
+ * 需登录：publish/update/offShelf/my — 商家发布与管理
+ * <p>
+ * 首页调用链：Home.vue search() → GET /api/products/search → ProductService.search
+ */
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {

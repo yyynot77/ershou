@@ -70,6 +70,11 @@
 </template>
 
 <script setup>
+/**
+ * 页面：买家订单（views/Orders.vue）路由 /orders
+ * 加载 myOrders()；确认收货 confirmReceive；申请退货 requestReturn
+ * API → OrderController → OrderService
+ */
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Clock, Location } from '@element-plus/icons-vue'

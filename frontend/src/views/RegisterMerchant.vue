@@ -95,6 +95,7 @@
 </template>
 
 <script setup>
+/** 页面：商家入驻 → registerMerchant + 证照 uploadFile */
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

@@ -12,6 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+/**
+ * 钱包：充值、支付、退款、商家结算
+ * <p>
+ * 流水表 wallet_transaction；余额 wallet.balance
+ * <p>
+ * 下单 pay 由 OrderService.checkout 调用；充值由 UserController/AdminController 调用
+ */
 @Service
 public class WalletService {
     @Autowired

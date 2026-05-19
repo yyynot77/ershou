@@ -9,13 +9,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/**
+ * JWT 登录鉴权拦截器
+ * <p>
+ * 注册位置：WebConfig.addInterceptors，拦截 /api/**，白名单见 excludePathPatterns。
+ * <p>
+ * 完整调用链：
+ * 前端 request.js 附加 Authorization: Bearer {token}
+ * → 本类 preHandle 解析 JWT
+ * → UserContext.set(userId, role) 供 Controller/Service 通过 UserContext.getUserId() 使用
+ * → 业务处理完毕 afterCompletion 清理 ThreadLocal，防止线程池复用脏数据
+ * <p>
+ * 前端对应：Login 成功后 token 存 sessionStorage；401 时 request 响应拦截器跳转登录页
+ */
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtUtil jwtUtil;
 
+    /**
+     * 请求进入 Controller 前执行
+     *
+     * @return false 时直接返回 401 JSON，不进入 Controller
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 浏览器 CORS 预检请求放行
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
@@ -43,6 +62,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
     }
 
+    /** 请求结束（含异常）后清理 ThreadLocal */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         UserContext.clear();

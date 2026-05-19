@@ -72,6 +72,16 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 页面：个人中心（views/Profile.vue）
+ * ============================================================================
+ *
+ * onMounted load()：getProfile + getTransactions 填表单与流水表
+ * save()：updateProfile → PUT /api/user/profile
+ * goRecharge()：仅 USER 角色 → router.push('/recharge')
+ * ============================================================================
+ */
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

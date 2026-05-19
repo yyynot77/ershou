@@ -92,6 +92,20 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 布局：主框架（layouts/MainLayout.vue）
+ * ============================================================================
+ *
+ * 包裹除登录/注册外所有业务页，提供顶栏搜索、导航、用户菜单、购物车角标。
+ *
+ * doSearch()：router.push({ path:'/', query:{ q }}) → Home.vue watch 触发搜索
+ * handleCmd()：下拉菜单 → profile/recharge/publish/logout
+ *
+ * watch store.isLogin：登录后 cartStore.refresh() 更新角标
+ * logout：store.logout + cartStore.setCount(0) + 跳转 /login
+ * ============================================================================
+ */
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {

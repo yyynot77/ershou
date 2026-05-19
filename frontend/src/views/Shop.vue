@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+/** 页面：店铺页 → getShop(merchantId) 展示商家信息与商品列表 */
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getShop } from '../api'

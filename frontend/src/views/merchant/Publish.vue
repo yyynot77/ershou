@@ -35,6 +35,10 @@
 </template>
 
 <script setup>
+/**
+ * 页面：商家发布商品（merchant/Publish.vue）
+ * 上传图 uploadFile → 提交 publishProduct → ProductService.publish（状态 PENDING 待审）
+ */
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'

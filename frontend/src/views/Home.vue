@@ -75,6 +75,28 @@
 </template>
 
 <script setup>
+/**
+ * ============================================================================
+ * 页面：首页商品流（views/Home.vue）
+ * ============================================================================
+ *
+ * 路由：/ （MainLayout 子路由）
+ *
+ * 生命周期 onMounted：
+ * 1. 读 route.query.q 作为搜索关键词
+ * 2. getCategories / getBanners 填分类与轮播
+ * 3. search() 拉商品分页列表
+ *
+ * 用户操作：
+ * - 顶栏搜索 → MainLayout.doSearch → 改 query.q → watch 触发 search()
+ * - 分类 el-check-tag → toggleCategory() → search()
+ * - 排序 radio → onSortChange() → search()
+ * - 点击商品卡片 → ProductCard.goDetail → /product/:id
+ *
+ * 数据：products/total 为 ref，赋值后 el-row 重渲染 ProductCard 列表
+ * API：GET /api/products/search → ProductService.search（仅 PUBLISHED 有库存）
+ * ============================================================================
+ */
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { searchProducts, getBanners, getCategories } from '../api'
