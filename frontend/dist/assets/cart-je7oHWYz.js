@@ -1,1 +1,0 @@
-import{l as s,v as u}from"./index-HoijePd2.js";import{m as f}from"./index-Cj4Ruk0j.js";const l=s("cart",()=>{const t=u(0);async function a(){try{const e=await f();t.value=(e.data||[]).reduce((n,c)=>{var r;return n+(((r=c.cartItem)==null?void 0:r.quantity)||0)},0)}catch{t.value=0}}function o(e){t.value=e}return{count:t,refresh:a,setCount:o}});export{l as u};
