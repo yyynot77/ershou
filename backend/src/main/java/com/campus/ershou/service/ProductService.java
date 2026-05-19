@@ -96,7 +96,8 @@ public class ProductService {
 
     public Page<Map<String, Object>> search(String keyword, Long categoryId, String sortBy, int page, int size) {
         LambdaQueryWrapper<Product> qw = new LambdaQueryWrapper<>();
-        qw.in(Product::getStatus, Constants.PRODUCT_PUBLISHED, Constants.PRODUCT_SOLD);
+        qw.eq(Product::getStatus, Constants.PRODUCT_PUBLISHED);
+        qw.gt(Product::getStock, 0);
         if (keyword != null && !keyword.isBlank()) {
             qw.like(Product::getName, keyword);
         }

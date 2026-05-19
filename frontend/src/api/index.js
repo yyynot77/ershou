@@ -37,6 +37,7 @@ export const approveReturn = (id, pass) => request.post(`/api/orders/${id}/retur
 export const getProfile = () => request.get('/api/user/profile')
 export const updateProfile = data => request.put('/api/user/profile', data)
 export const getTransactions = () => request.get('/api/user/wallet/transactions')
+export const selfRecharge = amount => request.post('/api/user/wallet/recharge', null, { params: { amount } })
 
 export const reviewProduct = params => request.post('/api/reviews/product', null, { params })
 export const reviewMerchant = params => request.post('/api/reviews/merchant', null, { params })

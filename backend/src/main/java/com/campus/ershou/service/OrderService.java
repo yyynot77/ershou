@@ -66,7 +66,11 @@ public class OrderService {
             oi.setSettleStatus("ESCROW");
             items.add(oi);
             p.setStock(p.getStock() - ci.getQuantity());
-            p.setStatus(Constants.PRODUCT_LOCKED);
+            if (p.getStock() <= 0) {
+                p.setStatus(Constants.PRODUCT_SOLD);
+            } else {
+                p.setStatus(Constants.PRODUCT_LOCKED);
+            }
             productMapper.updateById(p);
         }
 

@@ -9,6 +9,7 @@ import com.campus.ershou.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +46,18 @@ public class UserController {
         user.setStatus(null);
         userMapper.updateById(user);
         return Result.ok();
+    }
+
+    @PostMapping("/wallet/recharge")
+    public Result<?> selfRecharge(@RequestParam BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return Result.fail("充值金额须大于0");
+        }
+        Long uid = UserContext.getUserId();
+        walletService.recharge(uid, amount, "银行卡充值（模拟）");
+        Map<String, Object> map = new HashMap<>();
+        map.put("wallet", walletService.getOrCreate(uid));
+        return Result.ok(map);
     }
 
     @GetMapping("/wallet/transactions")

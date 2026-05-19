@@ -32,6 +32,9 @@
           <el-menu-item index="/orders" v-if="store.isLogin() && !store.isAdmin()">
             <el-icon><List /></el-icon>订单
           </el-menu-item>
+          <el-menu-item index="/recharge" v-if="store.isUser()">
+            <el-icon><Wallet /></el-icon>充值
+          </el-menu-item>
           <el-sub-menu v-if="store.isMerchant()" index="merchant">
             <template #title><el-icon><Shop /></el-icon>商家中心</template>
             <el-menu-item index="/merchant/publish">发布商品</el-menu-item>
@@ -54,6 +57,7 @@
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile"><el-icon><User /></el-icon>个人中心</el-dropdown-item>
+                  <el-dropdown-item v-if="store.isUser()" command="recharge"><el-icon><Wallet /></el-icon>钱包充值</el-dropdown-item>
                   <el-dropdown-item v-if="store.isMerchant()" command="publish"><el-icon><Plus /></el-icon>发布商品</el-dropdown-item>
                   <el-dropdown-item divided command="logout"><el-icon><SwitchButton /></el-icon>退出登录</el-dropdown-item>
                 </el-dropdown-menu>
@@ -91,7 +95,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  Search, HomeFilled, ShoppingCart, List, Shop, Setting,
+  Search, HomeFilled, ShoppingCart, List, Shop, Setting, Wallet,
   User, Plus, SwitchButton, ArrowDown
 } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
@@ -112,6 +116,7 @@ const doSearch = () => {
 
 const handleCmd = cmd => {
   if (cmd === 'profile') router.push('/profile')
+  else if (cmd === 'recharge') router.push('/recharge')
   else if (cmd === 'publish') router.push('/merchant/publish')
   else if (cmd === 'logout') { store.logout(); cartStore.setCount(0); router.push('/login') }
 }

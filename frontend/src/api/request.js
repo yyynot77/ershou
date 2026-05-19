@@ -1,11 +1,12 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '../router'
+import { getToken, clearAuth } from '../utils/authStorage'
 
 const request = axios.create({ baseURL: '', timeout: 15000 })
 
 request.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
+  const token = getToken()
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -21,7 +22,7 @@ request.interceptors.response.use(
   },
   err => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('token')
+      clearAuth()
       router.push('/login')
     }
     const msg = err.response?.data?.message

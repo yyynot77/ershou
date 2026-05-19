@@ -4,12 +4,13 @@
 
     <el-row :gutter="20" class="stat-cards">
       <el-col :xs="24" :sm="8">
-        <div class="stat-card wallet">
+        <div class="stat-card wallet" :class="{ clickable: isUser }" @click="goRecharge">
           <el-icon :size="32"><Wallet /></el-icon>
           <div>
-            <span class="label">钱包余额</span>
+            <span class="label">{{ isUser ? '钱包余额 · 点击充值' : '钱包余额' }}</span>
             <span class="value">¥{{ profile?.wallet?.balance ?? '0.00' }}</span>
           </div>
+          <el-button v-if="isUser" type="primary" plain round size="small" class="recharge-btn" @click.stop="goRecharge">充值</el-button>
         </div>
       </el-col>
       <el-col :xs="24" :sm="8">
@@ -72,12 +73,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Wallet, Medal, User } from '@element-plus/icons-vue'
 import { getProfile, updateProfile, getTransactions } from '../api'
+import { useUserStore } from '../stores/user'
 import PageHeader from '../components/PageHeader.vue'
 
+const router = useRouter()
+const userStore = useUserStore()
 const profile = ref(null)
+const isUser = computed(() => userStore.isUser())
 const transactions = ref([])
 const saving = ref(false)
 
@@ -90,6 +96,10 @@ const typeLabel = t => ({ RECHARGE: '充值', PAY: '支付', REFUND: '退款', S
 const load = async () => {
   profile.value = (await getProfile()).data
   transactions.value = (await getTransactions()).data
+}
+
+const goRecharge = () => {
+  if (isUser.value) router.push('/recharge')
 }
 
 const save = async () => {
@@ -110,7 +120,9 @@ onMounted(load)
   display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;
   box-shadow: var(--shadow);
 }
-.stat-card.wallet { background: linear-gradient(135deg, #0d9488, #14b8a6); }
+.stat-card.wallet { background: linear-gradient(135deg, #0d9488, #14b8a6); position: relative; }
+.stat-card.clickable { cursor: pointer; }
+.stat-card .recharge-btn { margin-left: auto; align-self: center; }
 .stat-card.points { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
 .stat-card.role { background: linear-gradient(135deg, #6366f1, #818cf8); }
 .stat-card .label { display: block; font-size: 13px; opacity: 0.9; }

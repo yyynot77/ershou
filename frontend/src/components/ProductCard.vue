@@ -3,9 +3,9 @@
     <div class="img-wrap">
       <img :src="imageUrl" :alt="item.product.name" @error="onImgError" />
       <span v-if="item.product.conditionLevel" class="tag">{{ item.product.conditionLevel }}</span>
-      <div class="overlay" @click.stop>
-        <el-button circle :icon="ShoppingCart" type="primary" @click="quickAdd" title="加入购物车" />
-        <el-button circle :icon="View" @click="goDetail" title="查看详情" />
+      <div class="overlay">
+        <el-button circle :icon="ShoppingCart" type="primary" @click.stop="quickAdd" title="加入购物车" />
+        <el-button circle :icon="View" @click.stop="goDetail" title="查看详情" />
       </div>
     </div>
     <div class="body">
@@ -18,7 +18,10 @@
         <span v-if="item.product.originalPrice" class="orig">¥{{ item.product.originalPrice }}</span>
         <span class="sales">已售 {{ item.product.soldCount || 0 }}</span>
       </div>
-      <el-rate :model-value="Number(item.product.avgRating) || 5" disabled size="small" />
+      <div class="footer-row">
+        <el-rate :model-value="Number(item.product.avgRating) || 5" disabled size="small" />
+        <el-button link type="primary" class="detail-link" @click.stop="goDetail">查看详情</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -133,4 +136,7 @@ const quickAdd = async () => {
 .price { color: var(--danger); font-size: 20px; font-weight: 700; }
 .orig { font-size: 12px; color: #94a3b8; text-decoration: line-through; }
 .sales { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.footer-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.footer-row :deep(.el-rate) { pointer-events: none; }
+.detail-link { font-size: 13px; padding: 0; }
 </style>

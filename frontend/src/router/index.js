@@ -9,6 +9,7 @@ const routes = [
     { path: 'cart', name: 'cart', component: () => import('../views/Cart.vue'), meta: { auth: true } },
     { path: 'orders', name: 'orders', component: () => import('../views/Orders.vue'), meta: { auth: true } },
     { path: 'profile', name: 'profile', component: () => import('../views/Profile.vue'), meta: { auth: true } },
+    { path: 'recharge', name: 'recharge', component: () => import('../views/Recharge.vue'), meta: { auth: true, role: 'USER' } },
     { path: 'merchant/products', name: 'merchantProducts', component: () => import('../views/merchant/ProductManage.vue'), meta: { auth: true, role: 'MERCHANT' } },
     { path: 'merchant/publish', name: 'publish', component: () => import('../views/merchant/Publish.vue'), meta: { auth: true, role: 'MERCHANT' } },
     { path: 'merchant/orders', name: 'merchantOrders', component: () => import('../views/merchant/MerchantOrders.vue'), meta: { auth: true, role: 'MERCHANT' } },
