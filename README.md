@@ -14,7 +14,7 @@
 
 ### 1. 数据库（必做，否则接口会 500）
 
-在 MySQL 中执行初始化脚本（会创建 `market` 库及全部表）：
+在 MySQL 中执行初始化脚本（会创建 `2023011345` 库及全部表）：
 
 ```bash
 mysql -u root -p123456 < sql/init.sql
@@ -22,7 +22,7 @@ mysql -u root -p123456 < sql/init.sql
 
 确认 `backend/src/main/resources/application.yml` 与本地 MySQL 一致，当前默认为：
 
-- 库名：`market`
+- 库名：`2023011345`
 - 用户：`root`
 - 密码：`123456`
 

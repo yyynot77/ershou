@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<?> handleDb(DataAccessException e) {
         e.printStackTrace();
-        return Result.fail("数据库访问失败，请确认 MySQL 已启动并已执行 sql/init.sql 初始化 market 库");
+        return Result.fail("数据库访问失败，请确认 MySQL 已启动并已执行 sql/init.sql 初始化 2023011345 库");
     }
 
     @ExceptionHandler(Exception.class)
