@@ -1,7 +1,7 @@
 -- 校园二手交易市场数据库初始化脚本
--- 与 application.yml 中 spring.datasource.url 的数据库名保持一致（当前默认 market）
-CREATE DATABASE IF NOT EXISTS market DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE market;
+-- 与 application.yml 中 spring.datasource.url 的数据库名保持一致（当前为 2023011345）
+CREATE DATABASE IF NOT EXISTS `2023011345` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `2023011345`;
 
 -- 用户表（普通用户/商家/管理员）
 DROP TABLE IF EXISTS buyer_blacklist;
